@@ -1,0 +1,113 @@
+import pygame, sys
+from math import *
+from pygame.locals import *
+
+'''
+size of window
+'''
+width = 500
+height = 500
+size = (width,height)
+
+
+
+pygame.init()  #must be set before anything else pygame related
+screen = pygame.display.set_mode(size)  #defining the screen / window in pygame
+background = pygame.Surface(screen.get_size())  #sets the background of the screen / window we want to use
+
+'''
+colors we may use if we chose.  YOu dont have to define them this way, but its easier to read
+'''
+red = pygame.Color(255,0,0)
+green = pygame.Color(0,255,0)
+blue = pygame.Color(0,0,255)
+black = pygame.Color(0,0,0)
+white = pygame.Color(255,255,255)
+
+class player:
+    def __init__(self,x = 50,y = 50):
+
+        self.x = x;
+        self.y = y;
+        self.dir = 0    #Dir := 0-7, start north & rotate clockwise
+    
+p = player()
+
+'''
+given a keypress update player (p) direction and location (x,y)
+'''
+def walk(p):
+    if event.type == KEYDOWN:
+        if event.key == K_LEFT and p.x > 1:
+            p.x -= 1
+            p.dir = 6
+        elif event.key == K_RIGHT and p.x < width - 1:
+            p.x += 1
+            p.dir = 2
+        elif event.key == K_UP and p.y > 1:
+            if event.key == K_LEFT and p.x > 1:
+                p.x -=1
+                p.y -= 1
+                p.dir = 7
+            else:
+                p.y -= 1
+                p.dir = 0
+        elif event.key == K_DOWN and p.y < height - 1:
+            p.y += 1
+            p.dir = 4
+    return p.x,p.y,p.dir
+
+'''
+given the direction (looking) of the player (p) draw visual cone 
+'''
+def draw_array(p):
+
+    hyp = sqrt( p.x**2 + p.y**2)
+
+    if p.dir == 0:
+        pygame.draw.line(screen, red, (p.x,p.y), (p.x-30,p.y-30), 1) #left line
+        pygame.draw.line(screen, red, (p.x,p.y), (p.x+30,p.y-30), 1)
+        pygame.draw.line(screen, red, (p.x-30,p.y-30), (p.x+30,p.y-30),1)
+    
+
+
+    elif p.dir == 2:
+        pygame.draw.line(screen, red, (p.x,p.y), (p.x+30,p.y-30), 1) #left line
+        pygame.draw.line(screen, red, (p.x,p.y), (p.x+30,p.y+30), 1)
+        pygame.draw.line(screen, red , (p.x+30,p.y-30), (p.x+30,p.y+30), 1)
+
+    elif p.dir == 4:
+        pygame.draw.line(screen, red, (p.x,p.y), (p.x+30,p.y+30), 1) #left line
+        pygame.draw.line(screen, red, (p.x,p.y), (p.x-30,p.y+30), 1)
+        pygame.draw.line(screen, red, (p.x+30,p.y+30), (p.x-30,p.y+30),1)
+
+    elif p.dir == 6:
+        pygame.draw.line(screen, red, (p.x,p.y), (p.x-30,p.y+30), 1) #left line
+        pygame.draw.line(screen, red, (p.x,p.y), (p.x-30,p.y-30), 1)
+        pygame.draw.line(screen, red , (p.x-30,p.y+30), (p.x-30,p.y-30), 1)
+
+'''
+main loop to draw player (p) and update as he moves around
+'''
+while 1:
+
+    '''
+    quits game if window is closed
+    '''
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            pygame.quit()
+            sys.exit()
+
+    screen.fill(black)  # fills the background with black
+    
+    p.x,p.y,p.dir = walk(p)  #updates player postion (x,y) and his direction given key press
+
+    
+    pygame.draw.circle(screen,blue,(p.x,p.y),10,0)  # draw the player (circle)
+    draw_array(p)  #draw his visual cone (where he can see)
+
+    pygame.time.delay(10) #slow down drawing 
+    pygame.display.update()  #update screen
+
+    
