@@ -1,20 +1,46 @@
 import pygame, sys, random, time
 from pygame.locals import *
 
+'''
+in pygame you must do this step before anything else (pygame.init())
+'''
 pygame.init()
 
+'''
+this is the max window setting / world for our sprites to play in.
+feel free to adjust 
+'''
 maxx = 500
 maxy = 200
 
+'''
+our goal sprite will teleport around the world waiting for the other sprite to catch it.
+goalx/y represent where this sprite is at any given time.  since we want him to randomly 
+jump around, we use the random module
+'''
 goalx = random.randrange(0,maxx-30)
 goaly = random.randrange(0,maxy-30)
 
+'''
+simply setting the colors we will later use & loading the sprite sheet we want
+'''
 Black = pygame.Color(0,0,0)
 White = pygame.Color(255,255,255)
 Red = pygame.Color(255,0,0)
-sheet = pygame.image.load('sprites/char2.png')
+#sheet = pygame.image.load('sprites/char2.png')
+sheet = pygame.image.load('char2.png')
 
+'''
+looking at the sprite sheets we draw boxes around each sprite we want to grab.
+to figure this out open the sprite sheet in any photo editor and put the curser
+on the upper left/right & bottom left/right of the image you want to use.  
+This creates a box around the sprite.
 
+To animate it we need to grab multiple images of the sprite "moving".  To get
+the animation to work, we simple blit (draw) a different motion per x seconds.
+eg at time = 0 we draw left leg forward sprite, t = 1 we draw legs together sprite
+t = 2 we draw right leg forword sprite, etc (play with the timing to make it look real)
+'''
 char_right1 = (200,67,21,30)
 char_right2 = (231,67,21,30)
 char_right3 = (263,67,21,30)
@@ -28,6 +54,12 @@ char_up3 = (263,100,21,30)
 char_down1 = (200,3,21,30)
 char_down2 = (231,3,21,30)
 char_down3 = (263,3,21,30)
+
+'''
+these lines simply take the sprite image (stored as our 4 tuples) and creates an interactive 
+box within pygame.  Before this all we had was tuples but no link from the sprite image to pygame.
+this step links the sprite images to pygame
+'''
 
 goal = (163,133,25,28)
 sheet.set_clip(pygame.Rect(goal[0],goal[1],goal[2],goal[3]))
@@ -63,15 +95,20 @@ sheet.set_clip(pygame.Rect(char_down3[0],char_down3[1],char_down3[2],char_down3[
 draw_char_down3 = sheet.subsurface(sheet.get_clip())
 
 
-
+'''
+this creates our world (box) of six maxx/maxy
+'''
 Window = pygame.display.set_mode((maxx,maxy))
-    
-count = 0
-Dir = 1 #0=North, 1=East, 2=South, 3=West
-charx = 0
+
+
+count = 0       # used for timing (draw running sprite at count/time = ___)
+Dir = 1         #0=North, 1=East, 2=South, 3=West
+charx = 0       #where our running sprite is at any given moment
 chary = 0
 
-#returns unused locations for random blocks
+'''
+this simply gives us an unused location to draw our sprites (makes sure they do not overlap)
+'''
 def init_board():
     blocks = []
     while len(blocks) < 25:
@@ -86,7 +123,10 @@ def init_board():
     
 
 
-
+'''
+here is the logic for our running sprite.  He simply moves in a linear path from his 
+current location to the goal sprite once it appears
+'''
 def walk(charx,chary,goalx,goaly):
     if charx < goalx:
         if chary < goaly:
@@ -112,12 +152,12 @@ def walk(charx,chary,goalx,goaly):
         
     return charx,chary,4
 
-
+'''
+depending on which dir (direction) our running sprite is going at any given moment,
+we need to blit / draw the correct image to the screen.  eg if he is running down
+we want his front, if he is running to the right, we want his right image, etc.
+'''
 def draw(Dir,count,blocks):
-
-
-    #for b in blocks:
-    #    pygame.draw.rect(Window,Red,b)
 
 
     
@@ -155,6 +195,11 @@ def draw(Dir,count,blocks):
             
 blocks = []
 blocks = init_board()
+
+'''
+here is our main while loop that never ends.  This will allow our sprites to 
+chase each other until the user closes the window
+'''
 while 1:
 
     for event in pygame.event.get():    #check for exit
@@ -162,8 +207,7 @@ while 1:
             pygame.quit()
             sys.exit()
 
-    
-    Window.fill(Black)
+    Window.fill(Black)                          #fills the screen with black color (backdrop)
 
     if charx == goalx and chary == goaly:       # if goal reached reset goal
         goalx = random.randrange(0,maxx-30)
